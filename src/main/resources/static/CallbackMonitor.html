@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📞 藍新金流回調監控</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-row:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .status-value {
+            font-family: monospace;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .status-ok {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .status-error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .step-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .step-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .callback-log {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .log-success {
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .log-error {
+            border-left: 3px solid #f44336;
+        }
+        
+        .log-info {
+            border-left: 3px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📞 藍新金流回調監控中心</h1>
+            <p>Callback API Setup & Monitoring</p>
+        </div>
+        
+        <div class="content">
+            <!-- 當前狀態 -->
+            <h2 class="section-title">📊 當前狀態</h2>
+            
+            <div class="status-card">
+                <div class="status-row">
+                    <span class="status-label">應用程式</span>
+                    <span class="status-value status-ok" id="appStatus">檢查中...</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">回調端點</span>
+                    <span class="status-value" id="callbackEndpoint">http://localhost:8080/api/notify</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">設定的回調 URL</span>
+                    <span class="status-value" id="configuredUrl">載入中...</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">ngrok 狀態</span>
+                    <span class="status-value" id="ngrokStatus">未設定</span>
+                </div>
+            </div>
+            
+            <!-- 問題說明 -->
+            <h2 class="section-title">❓ 為什麼需要 ngrok？</h2>
+            
+            <div class="warning-box">
+                <strong>⚠️ 本地開發的限制：</strong>
+                <p style="margin-top: 10px;">
+                    藍新金流需要一個<strong>公開可存取的 URL</strong> 來發送付款完成通知。
+                    但您的開發環境運行在 <code>localhost:8080</code>，藍新金流無法從網際網路存取到它。
+                </p>
+            </div>
+            
+            <div class="info-box">
+                <strong>✅ 解決方案：</strong>
+                <p style="margin-top: 10px;">
+                    <strong>ngrok</strong> 可以建立一個公開的臨時網址（例如：<code>https://abc-123.ngrok-free.app</code>），
+                    將藍新金流的回調請求轉發到您的本地 <code>localhost:8080</code>。
+                </p>
+            </div>
+            
+            <!-- 設定步驟 -->
+            <h2 class="section-title">🚀 設定步驟</h2>
+            
+            <div class="step-container">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">安裝 ngrok</div>
+                    <div class="code-block">brew install ngrok</div>
+                    <p style="margin-top: 8px; font-size: 14px; color: #666;">
+                        或從官網下載：<a href="https://ngrok.com/download" target="_blank">https://ngrok.com/download</a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">在新終端視窗啟動 ngrok</div>
+                    <div class="code-block">ngrok http 8080</div>
+                    <p style="margin-top: 8px; font-size: 14px; color: #666;">
+                        執行後會顯示一個 <code>https://</code> 開頭的 URL，請複製它
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">使用自動化腳本設定</div>
+                    <div class="code-block">./setup_callback.sh</div>
+                    <p style="margin-top: 8px; font-size: 14px; color: #666;">
+                        腳本會自動更新配置並重啟應用程式
+                    </p>
+                    <button class="btn btn-primary" onclick="openTerminal()">📝 複製指令</button>
+                </div>
+            </div>
+            
+            <div class="step-container">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-title">測試回調</div>
+                    <div class="code-block">./test_callback.sh</div>
+                    <p style="margin-top: 8px; font-size: 14px; color: #666;">
+                        測試回調 API 是否正常運作（不需要真正付款）
+                    </p>
+                    <button class="btn btn-primary" onclick="testCallback()">🧪 執行測試</button>
+                </div>
+            </div>
+            
+            <!-- 快速測試 -->
+            <h2 class="section-title">🧪 快速測試</h2>
+            
+            <div class="success-box">
+                <strong>✅ 本地測試（不需要 ngrok）：</strong>
+                <p style="margin-top: 10px;">
+                    您可以在不設定 ngrok 的情況下測試回調 API 的程式邏輯。
+                    點擊下方按鈕會模擬藍新金流發送回調請求到本地端點。
+                </p>
+                <button class="btn btn-primary" onclick="simulateCallback()" style="margin-top: 10px;">
+                    🚀 模擬回調請求
+                </button>
+            </div>
+            
+            <!-- 回調日誌 -->
+            <h2 class="section-title">📝 回調日誌</h2>
+            
+            <div>
+                <button class="btn btn-secondary" onclick="loadLogs()">🔄 重新載入日誌</button>
+                <button class="btn btn-secondary" onclick="clearLogs()">🗑️ 清空顯示</button>
+            </div>
+            
+            <div class="callback-log" id="logContainer">
+                <div class="log-entry log-info">等待日誌...</div>
+                <div class="log-entry log-info" style="opacity: 0.6;">
+                    提示：完成付款後，回調日誌會自動顯示在這裡
+                </div>
+            </div>
+            
+            <!-- ngrok 管理介面 -->
+            <h2 class="section-title">🌐 ngrok 管理介面</h2>
+            
+            <div class="info-box">
+                <strong>📊 查看詳細請求資訊：</strong>
+                <p style="margin-top: 10px;">
+                    如果您已啟動 ngrok，可以訪問其 Web 管理介面查看所有進來的 HTTP 請求，
+                    包括藍新金流發送的回調請求。這對除錯非常有幫助！
+                </p>
+                <button class="btn btn-primary" onclick="openNgrokDashboard()" style="margin-top: 10px;">
+                    📈 開啟 ngrok 管理介面
+                </button>
+            </div>
+            
+            <!-- 常見問題 -->
+            <h2 class="section-title">❓ 常見問題</h2>
+            
+            <details style="margin-bottom: 15px;">
+                <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 5px; font-weight: 600;">
+                    Q: 為什麼收不到回調通知？
+                </summary>
+                <div style="padding: 15px; background: #f8f9fa; margin-top: 5px; border-radius: 5px;">
+                    <p>請檢查以下項目：</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ ngrok 是否正在運行？</li>
+                        <li>✅ application.yml 的 notify-url 是否已更新為 ngrok URL？</li>
+                        <li>✅ 應用程式是否已使用新配置重啟？</li>
+                        <li>✅ 付款是否真的完成？（測試環境也會發送回調）</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <details style="margin-bottom: 15px;">
+                <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 5px; font-weight: 600;">
+                    Q: ngrok URL 每次都不一樣怎麼辦？
+                </summary>
+                <div style="padding: 15px; background: #f8f9fa; margin-top: 5px; border-radius: 5px;">
+                    <p>免費版 ngrok 每次啟動都會產生不同的 URL。您可以：</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>使用 <code>./setup_callback.sh</code> 腳本快速更新配置</li>
+                        <li>或升級到付費版取得固定的 URL</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <details style="margin-bottom: 15px;">
+                <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 5px; font-weight: 600;">
+                    Q: 正式環境如何設定？
+                </summary>
+                <div style="padding: 15px; background: #f8f9fa; margin-top: 5px; border-radius: 5px;">
+                    <p>正式環境不需要 ngrok，直接使用您的網域名稱：</p>
+                    <div class="code-block" style="margin-top: 10px;">notify-url: 'https://your-domain.com/api/notify'</div>
+                    <p style="margin-top: 10px;">確保：</p>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>使用 HTTPS（藍新要求）</li>
+                        <li>網域名稱可以從網際網路存取</li>
+                        <li>防火牆允許藍新金流的 IP</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    </div>
+    
+    <script>
+        // 頁面載入時檢查狀態
+        window.onload = function() {
+            checkAppStatus();
+            loadLogs();
+        };
+        
+        // 檢查應用程式狀態
+        async function checkAppStatus() {
+            const statusEl = document.getElementById('appStatus');
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/pay', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    statusEl.textContent = '✅ 運行中';
+                    statusEl.className = 'status-value status-ok';
+                } else {
+                    statusEl.textContent = '⚠️ 異常';
+                    statusEl.style.color = '#FF9800';
+                }
+            } catch (error) {
+                statusEl.textContent = '❌ 未運行';
+                statusEl.className = 'status-value status-error';
+            }
+        }
+        
+        // 模擬回調請求
+        async function simulateCallback() {
+            const logContainer = document.getElementById('logContainer');
+            
+            try {
+                // 1. 取得付款資料
+                addLog('info', '正在產生測試付款資料...');
+                const payResponse = await fetch('http://localhost:8080/api/pay', {
+                    method: 'POST'
+                });
+                const payData = await payResponse.json();
+                
+                addLog('success', `付款資料已產生 (TradeInfo: ${payData.TradeInfo.substring(0, 40)}...)`);
+                
+                // 2. 發送模擬回調
+                addLog('info', '發送模擬回調請求到 /api/notify...');
+                
+                const formData = new URLSearchParams();
+                formData.append('Status', 'SUCCESS');
+                formData.append('MerchantID', payData.MerchantID);
+                formData.append('TradeInfo', payData.TradeInfo);
+                formData.append('TradeSha', payData.TradeSha);
+                
+                const callbackResponse = await fetch('http://localhost:8080/api/notify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+                
+                if (callbackResponse.ok) {
+                    const result = await callbackResponse.text();
+                    addLog('success', `✅ 回調成功！回應: ${result}`);
+                } else {
+                    addLog('error', `❌ 回調失敗 (HTTP ${callbackResponse.status})`);
+                }
+                
+            } catch (error) {
+                addLog('error', `❌ 錯誤: ${error.message}`);
+            }
+        }
+        
+        // 添加日誌
+        function addLog(type, message) {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // 限制日誌數量
+            while (logContainer.children.length > 20) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+        
+        // 載入日誌
+        function loadLogs() {
+            addLog('info', '日誌載入功能開發中... 請使用終端查看完整日誌');
+            addLog('info', '指令: tail -f /tmp/newwebpay_test.log | grep notify');
+        }
+        
+        // 清空日誌顯示
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '<div class="log-entry log-info">日誌已清空</div>';
+        }
+        
+        // 開啟 ngrok 管理介面
+        function openNgrokDashboard() {
+            window.open('http://127.0.0.1:4040', '_blank');
+        }
+        
+        // 開啟終端
+        function openTerminal() {
+            alert('請在終端執行:\n\n./setup_callback.sh');
+        }
+        
+        // 測試回調
+        function testCallback() {
+            alert('請在終端執行:\n\n./test_callback.sh');
+        }
+    </script>
+</body>
+</html>

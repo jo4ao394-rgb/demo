@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 藍新金流測試中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .status-value {
+            font-family: monospace;
+            color: #333;
+        }
+        
+        .status-ok {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 18px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-card.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .result-item {
+            margin-bottom: 12px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-family: monospace;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 13px;
+        }
+        
+        .countdown {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .test-cards {
+            background: #fff3e0;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        .test-cards h3 {
+            color: #FF9800;
+            margin-bottom: 10px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 藍新金流測試中心</h1>
+            <p>自動化付款流程測試工具 - CORS 已啟用</p>
+        </div>
+        
+        <div class="content">
+            <!-- 系統狀態 -->
+            <div class="status-card">
+                <h2 style="margin-bottom: 15px;">📊 系統狀態</h2>
+                <div class="status-item">
+                    <span class="status-label">應用程式狀態</span>
+                    <span class="status-value status-ok" id="appStatus">檢查中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">CORS 支援</span>
+                    <span class="status-value status-ok">✅ 已啟用</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">測試環境</span>
+                    <span class="status-value">https://ccore.newebpay.com</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">商店代號</span>
+                    <span class="status-value">MS3804087791</span>
+                </div>
+            </div>
+            
+            <!-- 測試資訊 -->
+            <div class="info-box">
+                <strong>💡 測試說明：</strong> 點擊「開始付款測試」將自動取得最新的付款資料，並在 5 秒後自動送出到藍新金流測試環境。
+            </div>
+            
+            <!-- 操作按鈕 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="startAutoTest()" id="startBtn">
+                    <span>🚀</span>
+                    <span>開始付款測試</span>
+                </button>
+                <button class="btn btn-secondary" onclick="checkStatus()">
+                    <span>🔄</span>
+                    <span>刷新狀態</span>
+                </button>
+            </div>
+            
+            <!-- 倒數計時 -->
+            <div id="countdownDiv" style="display: none;">
+                <div class="countdown" id="countdown"></div>
+            </div>
+            
+            <!-- 載入中 -->
+            <div id="loadingDiv" style="display: none;">
+                <div class="spinner"></div>
+                <p style="text-align: center; color: #666;">正在取得付款資料...</p>
+            </div>
+            
+            <!-- 結果顯示 -->
+            <div class="result-card" id="resultCard">
+                <div class="result-title">✅ 付款資料已準備完成</div>
+                <div class="result-item">
+                    <span class="result-label">商店代號 (MerchantID)</span>
+                    <div class="result-value" id="resultMID"></div>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">版本 (Version)</span>
+                    <div class="result-value" id="resultVersion"></div>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">加密資料 (TradeInfo)</span>
+                    <div class="result-value" id="resultTradeInfo"></div>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">驗證碼 (TradeSha)</span>
+                    <div class="result-value" id="resultTradeSha"></div>
+                </div>
+            </div>
+            
+            <!-- 測試卡號資訊 -->
+            <div class="test-cards">
+                <h3>💳 測試卡號資訊</h3>
+                <p><strong>卡號：</strong>4000-2211-1111-1111</p>
+                <p><strong>有效期限：</strong>12/28（或任意未來日期）</p>
+                <p><strong>CVV：</strong>123</p>
+                <p><strong>持卡人姓名：</strong>TEST USER</p>
+                <p><strong>3D 驗證碼：</strong>12345678</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 隱藏的表單 -->
+    <form id="payForm" method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+        <input type="text" name="MerchantID" id="MerchantID">
+        <input type="text" name="Version" id="Version">
+        <input type="text" name="TradeInfo" id="TradeInfo">
+        <input type="text" name="TradeSha" id="TradeSha">
+    </form>
+    
+    <script>
+        // 頁面載入時檢查狀態
+        window.onload = function() {
+            checkStatus();
+        };
+        
+        // 檢查應用程式狀態
+        async function checkStatus() {
+            const statusEl = document.getElementById('appStatus');
+            statusEl.textContent = '檢查中...';
+            statusEl.className = 'status-value';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/pay', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    statusEl.textContent = '✅ 運行中 (Port 8080)';
+                    statusEl.className = 'status-value status-ok';
+                } else {
+                    statusEl.textContent = '⚠️ 異常 (HTTP ' + response.status + ')';
+                    statusEl.style.color = '#FF9800';
+                }
+            } catch (error) {
+                statusEl.textContent = '❌ 無法連線';
+                statusEl.style.color = '#f44336';
+                alert('無法連接到應用程式！\n請確認：\n1. 應用程式是否正在運行\n2. Port 8080 是否被佔用\n3. CORS 是否已啟用');
+            }
+        }
+        
+        // 開始自動測試
+        async function startAutoTest() {
+            const startBtn = document.getElementById('startBtn');
+            const loadingDiv = document.getElementById('loadingDiv');
+            const resultCard = document.getElementById('resultCard');
+            const countdownDiv = document.getElementById('countdownDiv');
+            
+            // 禁用按鈕
+            startBtn.disabled = true;
+            
+            // 隱藏之前的結果
+            resultCard.classList.remove('show');
+            countdownDiv.style.display = 'none';
+            
+            // 顯示載入中
+            loadingDiv.style.display = 'block';
+            
+            try {
+                // 從 API 取得付款資料
+                const response = await fetch('http://localhost:8080/api/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API 回應錯誤: ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // 隱藏載入中
+                loadingDiv.style.display = 'none';
+                
+                // 填入表單
+                document.getElementById('MerchantID').value = data.MerchantID;
+                document.getElementById('Version').value = data.Version;
+                document.getElementById('TradeInfo').value = data.TradeInfo;
+                document.getElementById('TradeSha').value = data.TradeSha;
+                
+                // 顯示結果
+                document.getElementById('resultMID').textContent = data.MerchantID;
+                document.getElementById('resultVersion').textContent = data.Version;
+                document.getElementById('resultTradeInfo').textContent = data.TradeInfo;
+                document.getElementById('resultTradeSha').textContent = data.TradeSha;
+                resultCard.classList.add('show');
+                
+                // 開始倒數計時
+                countdownDiv.style.display = 'block';
+                let countdown = 5;
+                const countdownEl = document.getElementById('countdown');
+                
+                const interval = setInterval(() => {
+                    countdownEl.textContent = countdown;
+                    countdown--;
+                    
+                    if (countdown < 0) {
+                        clearInterval(interval);
+                        countdownEl.textContent = '🚀';
+                        
+                        // 送出表單
+                        setTimeout(() => {
+                            document.getElementById('payForm').submit();
+                        }, 500);
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                alert('錯誤: ' + error.message + '\n\n請確認：\n1. 應用程式是否正在運行 (http://localhost:8080)\n2. API 端點是否可以存取\n3. 查看瀏覽器控制台是否有 CORS 錯誤');
+                startBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

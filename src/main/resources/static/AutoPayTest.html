@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>藍新金流自動測試</title>
+    <style>
+        body {
+            font-family: Arial, "Microsoft JhengHei", sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 20px auto;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            display: block;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .info {
+            background-color: #2196F3;
+            color: white;
+        }
+        .success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+        .data-display {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            margin-top: 20px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .countdown {
+            font-size: 24px;
+            color: #FF9800;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 藍新金流測試 - 自動付款</h1>
+        <p style="text-align: center; color: #666;">
+            點擊下方按鈕將自動從 API 取得付款資料並送出到藍新金流測試環境
+        </p>
+        
+        <button onclick="startPay()">🎯 開始付款測試</button>
+        
+        <div id="status"></div>
+        <div id="countdown" class="countdown"></div>
+        <div id="dataDisplay"></div>
+        
+        <form id="payForm" method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway" style="display:none;">
+            <input type="text" name="MerchantID" id="MerchantID">
+            <input type="text" name="Version" id="Version">
+            <input type="text" name="TradeInfo" id="TradeInfo">
+            <input type="text" name="TradeSha" id="TradeSha">
+        </form>
+    </div>
+    
+    <script>
+        async function startPay() {
+            const statusDiv = document.getElementById('status');
+            const countdownDiv = document.getElementById('countdown');
+            const dataDisplay = document.getElementById('dataDisplay');
+            
+            statusDiv.innerHTML = '⏳ 正在從 API 取得付款資料...';
+            statusDiv.className = 'info';
+            dataDisplay.innerHTML = '';
+            countdownDiv.innerHTML = '';
+            
+            try {
+                // 從 API 取得付款資料
+                const response = await fetch('http://localhost:8080/api/pay', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API 回應錯誤: ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // 填入表單
+                document.getElementById('MerchantID').value = data.MerchantID;
+                document.getElementById('Version').value = data.Version;
+                document.getElementById('TradeInfo').value = data.TradeInfo;
+                document.getElementById('TradeSha').value = data.TradeSha;
+                
+                // 顯示取得的資料
+                dataDisplay.innerHTML = `
+                    <div class="data-display">
+                        <h3>✅ 付款資料已取得：</h3>
+                        <p><strong>商店代號 (MID):</strong> ${data.MerchantID}</p>
+                        <p><strong>版本 (Version):</strong> ${data.Version}</p>
+                        <p><strong>TradeInfo:</strong> ${data.TradeInfo.substring(0, 80)}...</p>
+                        <p><strong>TradeSha:</strong> ${data.TradeSha}</p>
+                        <p><strong>目標網址:</strong> ${data.Action}</p>
+                    </div>
+                `;
+                
+                statusDiv.innerHTML = '✅ 付款資料已成功取得！準備跳轉到藍新金流...';
+                statusDiv.className = 'success';
+                
+                // 倒數計時
+                let countdown = 5;
+                const countdownInterval = setInterval(() => {
+                    countdownDiv.innerHTML = `⏰ ${countdown} 秒後自動送出表單...`;
+                    countdown--;
+                    
+                    if (countdown < 0) {
+                        clearInterval(countdownInterval);
+                        countdownDiv.innerHTML = '🚀 正在跳轉到藍新金流...';
+                        document.getElementById('payForm').submit();
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '❌ 錯誤: ' + error.message;
+                statusDiv.className = 'error';
+                dataDisplay.innerHTML = `
+                    <div class="data-display" style="border-left-color: #f44336;">
+                        <h3>⚠️ 錯誤詳情：</h3>
+                        <p>${error.message}</p>
+                        <p>請確認：</p>
+                        <ul>
+                            <li>應用程式是否正在運行 (http://localhost:8080)</li>
+                            <li>API 端點是否可以存取</li>
+                            <li>瀏覽器控制台是否有 CORS 錯誤</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        // 頁面載入時顯示說明
+        window.onload = function() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '💡 準備就緒！點擊按鈕開始測試';
+            statusDiv.className = 'info';
+        }
+    </script>
+</body>
+</html>
