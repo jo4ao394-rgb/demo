@@ -58,7 +58,7 @@ public class BasicSecurityConfig {
                 auth
                     // 完全公開的資源
                     .requestMatchers(
-                        "/", "/index", "/product", "/register", "/login",  // 網頁頁面
+                        "/", "/index", "/product", "/register", "/login", "/mycarts",  // 網頁頁面
                         "/static/**", "/css/**", "/js/**", "/images/**",    // 靜態資源
                         "/favicon.ico", "/error"                           // 系統資源
                     ).permitAll()
@@ -78,6 +78,15 @@ public class BasicSecurityConfig {
                     
                     // 健康檢查端點
                     .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                    
+                    // 產品相關 API（允許公開訪問）
+                    .requestMatchers("/products/**").permitAll()
+                    
+                    // 購物車相關 API（允許公開訪問，內部有 session 檢查）
+                    .requestMatchers("/carts/**").permitAll()
+                    
+                    // 用戶相關 API（允許公開訪問）
+                    .requestMatchers("/users/**").permitAll()
                     
                     // 測試端點（開發時期）
                     .requestMatchers("/api/test/public").permitAll()
@@ -107,10 +116,11 @@ public class BasicSecurityConfig {
             // 步驟 5: 加入 JWT 認證過濾器
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             
-            // 步驟 6: 配置 session 策略（JWT 不需要 session）
+            // 步驟 6: 配置 session 策略（允許 session 用於購物車等功能）
             .sessionManagement(session -> {
                 log.debug("配置 Session 管理");
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+                session.maximumSessions(1); // 每個用戶最多一個 session
             });
 
         log.info("✅ 基礎安全設定配置完成");

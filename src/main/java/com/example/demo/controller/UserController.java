@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 //import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +46,12 @@ public class UserController {
       	//登入成功後設置session的值
         session.setAttribute("uid",list.get(0).getUid());
         session.setAttribute("username",list.get(0).getUsername());
+
+        // 設置 Spring Security 認證
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        UsernamePasswordAuthenticationToken authentication = 
+            new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return list;
     }

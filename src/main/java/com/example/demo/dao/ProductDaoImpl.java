@@ -24,7 +24,7 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> FindHostList() {
         //創建一個字串變數sql，裡面放SQL語句
         //在資料表中選出上架中的商品，並依照優先順序排序(降冪)，取前五筆
-        String sql="SELECT * FROM Productdata WHERE Status=1 ORDER BY Priority DESC LIMIT 5";
+        String sql="SELECT * FROM productdata WHERE status=1 ORDER BY priority DESC LIMIT 5";
         //Map類似python字典 <String, Object>指定key和value的型別 Object可以放任何型別
         //將選出的商品資料放入空的HashMap中(由於沒有像:id這種要填，所以會是空的)
         Map<String,Object> map= new HashMap<>();
@@ -44,7 +44,7 @@ public class ProductDaoImpl implements ProductDao {
     public List<Product> FindOtherList() {
         //創建一個字串變數sql，裡面放SQL語句
         //在資料表中選出上架中的商品，並依照優先順序排序(降冪)，取前五筆
-        String sql="SELECT * FROM Productdata WHERE Status=1 ORDER BY Priority DESC LIMIT 5 OFFSET 5";
+        String sql="SELECT * FROM productdata WHERE status=1 ORDER BY priority DESC LIMIT 5 OFFSET 5";
         //Map類似python字典 <String, Object>指定key和value的型別 Object可以放任何型別
         //將選出的商品資料放入空的HashMap中(由於沒有像:id這種要填，所以會是空的)
         Map<String,Object> map= new HashMap<>();
@@ -66,7 +66,7 @@ public class ProductDaoImpl implements ProductDao {
     public Product ReadById(Integer id) {
         //創建一個字串變數sql，裡面放SQL語句
         //在資料表中選出對應id的商品資料(前面Id為資料庫內欄位名稱，後面為自己自訂的名稱)
-        String sql="SELECT * FROM Productdata WHERE Id=:id";
+        String sql="SELECT * FROM productdata WHERE id=:id";
         //Map類似python字典 <String, Object>指定key和value的型別 Object可以放任何型別
         //將選出的商品id資料放入空的HashMap中
         Map<String,Object> map= new HashMap<>();
@@ -89,7 +89,7 @@ public class ProductDaoImpl implements ProductDao {
     public Integer UpdateNum(Integer id, Integer num) {
         //創建一個字串變數sql，裡面放SQL語句
         //更新指定商品的庫存數量
-        String sql = "UPDATE Productdata SET Num = :num WHERE Id = :id";
+        String sql = "UPDATE productdata SET num = :num WHERE id = :id";
         //Map類似python字典 <String, Object>指定key和value的型別 Object可以放任何型別
         //HashMap是Map的實現類(先建立空值放資料)
         //將資料表後面的值名稱填上實際對應後端的值

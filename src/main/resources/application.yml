@@ -4,11 +4,11 @@ spring:
   application:
     name: secure-ecommerce-api
   
-  # 資料庫配置（保持原有設定）
+  # 資料庫配置（連接到新創建的 newDB）
   datasource:
-    url: jdbc:mysql://localhost:3306/demo?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Taipei
+    url: jdbc:mysql://localhost:3306/newDB?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Taipei
     username: root
-    password: aa123123
+    password: 0965642400
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   # JPA 配置

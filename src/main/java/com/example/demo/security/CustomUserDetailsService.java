@@ -46,7 +46,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             case "admin":
                 return User.builder()
                         .username("admin")
-                        .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // password: password (簡單測試)
+                        .password("$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6hsOzke8eW") // password: admin123
                         .authorities(getAdminAuthorities())
                         .accountExpired(false)
                         .accountLocked(false)
@@ -69,17 +69,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 return User.builder()
                         .username("test@example.com")
                         .password("$2a$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.") // password: password
-                        .authorities(getUserAuthorities())
-                        .accountExpired(false)
-                        .accountLocked(false)
-                        .credentialsExpired(false)
-                        .disabled(false)
-                        .build();
-                        
-            case "testuser":
-                return User.builder()
-                        .username("testuser")
-                        .password("$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG") // password: password (簡單測試)  
                         .authorities(getUserAuthorities())
                         .accountExpired(false)
                         .accountLocked(false)
