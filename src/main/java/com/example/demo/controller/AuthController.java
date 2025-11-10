@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Profile("!enhanced") // 只在非 enhanced 模式下啟用
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;

@@ -6,9 +6,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,11 +46,14 @@ public class UserController {
         session.setAttribute("uid",list.get(0).getUid());
         session.setAttribute("username",list.get(0).getUsername());
 
-        // 設置 Spring Security 認證
+        // 設置 Spring Security 認證並持久化到 session
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
         UsernamePasswordAuthenticationToken authentication = 
             new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        // 將認證保存到 session 中，供後續請求使用
+        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
         return list;
     }

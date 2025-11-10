@@ -210,4 +210,44 @@ public class JwtService {
     public java.util.List<String> extractRoles(String token) {
         return extractClaim(token, claims -> (java.util.List<String>) claims.get("roles"));
     }
+
+    /**
+     * 獲取 JWT ID (JTI)
+     * @param token JWT Token
+     * @return JWT ID
+     */
+    public String getJwtId(String token) {
+        return extractClaim(token, Claims::getId);
+    }
+
+    /**
+     * 獲取 Token 過期時間戳
+     * @param token JWT Token
+     * @return 過期時間戳（毫秒）
+     */
+    public long getExpirationTime(String token) {
+        Date expiration = extractExpiration(token);
+        return expiration.getTime();
+    }
+
+    /**
+     * 生成帶有 JTI 的 Token
+     * @param extraClaims 額外的聲明
+     * @param userDetails 使用者詳細資訊
+     * @param jwtId JWT ID
+     * @return JWT Token
+     */
+    public String generateTokenWithJti(Map<String, Object> extraClaims, UserDetails userDetails, String jwtId) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + jwtProperties.getExpiration());
+        
+        return Jwts.builder()
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .id(jwtId) // 設置 JTI
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(getSignInKey())
+                .compact();
+    }
 }
